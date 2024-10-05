@@ -39,11 +39,12 @@ INSTALLED_APPS = [
     'django.contrib.messages',
     'django.contrib.staticfiles',
 
-    'corsheaders' # CORS
-    'rest_framework', # Django Rest Framework
-    'rest_framework_simplejwt', # Django JWT Authentication
+    'corsheaders',  # CORS
+    'rest_framework',  # Django Rest Framework
+    'rest_framework_simplejwt',  # Django JWT Authentication
 
-    'api', # Api configuration
+    'api',  # Api configuration
+    'users',
 ]
 
 MIDDLEWARE = [
@@ -120,11 +121,17 @@ USE_I18N = True
 
 USE_TZ = True
 
-
+AUTH_USER_MODEL = 'users.User'
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/5.1/howto/static-files/
 
-STATIC_URL = 'static/'
+STATIC_URL = 'collected_static/'
+STATICFILES_DIRS = [
+    BASE_DIR / "static",
+]
+STATIC_ROOT = BASE_DIR / 'collected_static'
+MEDIA_ROOT = BASE_DIR / 'media'
+MEDIA_URL = '/media/'
 
 # Default primary key field type
 # https://docs.djangoproject.com/en/5.1/ref/settings/#default-auto-field
