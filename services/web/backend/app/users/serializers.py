@@ -35,15 +35,15 @@ class OTPLoginSerializer(serializers.Serializer):
         user_id = data.get('id')
         token = data.get('token')
 
-        try:
-            user = User.objects.get(id=user_id)
-        except User.DoesNotExist:
+        if not User.objects.filter(id=user_id).exists():
             raise serializers.ValidationError("User not found.")
 
-        try:
-            two_factor_auth = TwoFactorAuthentication.objects.get(user=user)
-        except TwoFactorAuthentication.DoesNotExist:
+        user = User.objects.get(id=user_id)
+
+        if not TwoFactorAuthentication.objects.filter(user=user).exists():
             raise serializers.ValidationError("2FA not set up for this user.")
+
+        two_factor_auth = TwoFactorAuthentication.objects.get(user=user)
 
         if not two_factor_auth.verify_otp(token):
             raise serializers.ValidationError("Invalid OTP.")
@@ -54,3 +54,17 @@ class OTPLoginSerializer(serializers.Serializer):
         data['refresh'] = str(refresh)
         data['access'] = str(access_token)
         return data
+    
+
+class LogoutSerializer(serializers.Serializer):
+    refresh = serializers.CharField()
+
+    def validate_refresh(self, value):
+        token = RefreshToken(value)
+
+        if not token:
+            raise serializers.ValidationError("Invalid or expired refresh token.")
+        
+        token.blacklist()
+
+        return True

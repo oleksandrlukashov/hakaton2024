@@ -42,6 +42,7 @@ INSTALLED_APPS = [
     'corsheaders',  # CORS
     'rest_framework',  # Django Rest Framework
     'rest_framework_simplejwt',  # Django JWT Authentication
+    'rest_framework_simplejwt.token_blacklist', # Django JWT Authentication
 
     'api',  # Api configuration
     'users',
@@ -149,8 +150,9 @@ REST_FRAMEWORK = {
 }
 
 SIMPLE_JWT = {
-    'ACCESS_TOKEN_LIFETIME': timedelta(hours=1),  # Access token lives for 1 hour
+    'ACCESS_TOKEN_LIFETIME': timedelta(minutes=15),  # Access token lives for 1 hour
     'REFRESH_TOKEN_LIFETIME': timedelta(weeks=1),  # Refresh token lives for 1 week
+    'BLACKLIST_AFTER_ROTATION': True,
 }
 
 
