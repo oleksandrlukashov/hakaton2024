@@ -46,6 +46,7 @@ INSTALLED_APPS = [
 
     'api',  # Api configuration
     'users',
+    'home',
 ]
 
 MIDDLEWARE = [

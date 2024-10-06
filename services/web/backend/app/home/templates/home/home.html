@@ -1,0 +1,232 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Gradient Bar and Line Chart with Year Filter</title>
+  <style>
+    body {
+      margin: 0;
+      background-color: #180b2c;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+      height: 100vh;
+      font-family: 'Arial', sans-serif;
+    }
+
+    .chart-container {
+      text-align: center;
+      color: #fff;
+      width: 80%;
+      max-width: 800px;
+      background-color: #1c0f36;
+      padding: 20px;
+      border-radius: 20px;
+      box-shadow: 0 4px 15px rgba(0, 0, 0, 0.4);
+      margin-top: 30px;
+    }
+
+    h2 {
+      font-size: 28px;
+      margin-bottom: 15px;
+    }
+
+    h3 {
+      font-size: 20px;
+      margin-bottom: 30px;
+    }
+
+    canvas {
+      max-width: 100%;
+    }
+
+    select {
+      margin-top: 20px;
+      padding: 10px 15px;
+      background-color: #2c1f45;
+      color: #fff;
+      border: none;
+      border-radius: 5px;
+      cursor: pointer;
+      font-size: 16px;
+      margin-right: 10px;
+    }
+
+    select option {
+      background-color: #1c0f36;
+    }
+
+    /* Tooltip styles */
+    .tooltip-custom {
+      background-color: #a44ebf;
+      color: white;
+      padding: 10px;
+      border-radius: 5px;
+      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.4);
+    }
+  </style>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+</head>
+<body>
+  <div class="chart-container">
+    <h2>Demo of one of the widgets</h2>
+    <canvas id="myBarChart"></canvas>
+    <div>
+      <select id="chartTypeFilter">
+        <option value="bar">Bar</option>
+        <option value="line">Line</option>
+      </select>
+      <select id="yearFilter">
+        <option value="2020">2020</option>
+        <option value="2021">2021</option>
+        <option value="2022">2022</option>
+        <option value="2023">2023</option>
+        <option value="2024">2024 (Prediction)</option>
+      </select>
+    </div>
+  </div>
+
+  <script>
+    const ctx = document.getElementById('myBarChart').getContext('2d');
+
+    // Initial dataset for each year
+    const yearData = {
+      2020: { data: [40, 55, 20, 35, 50, 30, 20, 40, 50, 55, 45], news: [12, 8, 5, 10, 7, 4, 6, 9, 11, 15, 13] },
+      2021: { data: [50, 45, 35, 55, 60, 40, 35, 50, 45, 50, 60], news: [14, 9, 6, 12, 9, 6, 7, 10, 12, 14, 16] },
+      2022: { data: [45, 60, 40, 50, 55, 45, 40, 55, 60, 65, 50], news: [15, 12, 7, 15, 10, 8, 9, 13, 15, 17, 18] },
+      2023: { data: [55, 50, 45, 65, 70, 50, 45, 65, 70, 75, 55], news: [17, 15, 10, 18, 13, 9, 12, 16, 17, 19, 20] },
+      2024: { data: [60, 55, 50, 70, 75, 60, 55, 70, 75, 80, 65], news: [18, 17, 12, 20, 14, 11, 14, 18, 20, 22, 23] } // Prediction
+    };
+
+    // Gradient for bars
+    let gradient = ctx.createLinearGradient(0, 0, 0, 400);
+    gradient.addColorStop(0, '#ff8c94');
+    gradient.addColorStop(1, '#9567d8');
+
+    const config = {
+      type: 'bar', // Default to bar chart
+      data: {
+        labels: ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November'],
+        datasets: [{
+          label: 'Values',
+          data: yearData[2020].data,
+          backgroundColor: gradient,
+          borderRadius: 5,
+          borderColor: '#9567d8',  // For line chart
+          borderWidth: 2,
+          fill: false,             // Line chart shouldn't be filled
+          hoverBackgroundColor: gradient,
+        }]
+      },
+      options: {
+        plugins: {
+          tooltip: {
+            callbacks: {
+              label: function(tooltipItem) {
+                const year = document.getElementById('yearFilter').value;
+                const newsInfluence = yearData[year].news[tooltipItem.dataIndex];
+                return `Value: ${tooltipItem.raw}, Influenced by ${newsInfluence} news`;
+              }
+            },
+            backgroundColor: '#a44ebf',
+            cornerRadius: 6,
+            titleColor: '#ffffff',
+            bodyColor: '#ffffff',
+            titleFont: { size: 16 },
+            bodyFont: { size: 14 }
+          },
+          legend: {
+            display: false
+          }
+        },
+        scales: {
+          x: {
+            title: {
+              display: true,
+              text: '',
+              color: '#ffffff',
+              font: {
+                size: 16
+              }
+            },
+            ticks: {
+              color: '#b4a4ff',
+              font: {
+                size: 14
+              }
+            },
+            grid: {
+              display: false
+            }
+          },
+          y: {
+            title: {
+              display: true,
+              text: 'Electricity surplus (TJ)',
+              color: '#ffffff',
+              font: {
+                size: 16
+              }
+            },
+            ticks: {
+              color: '#b4a4ff',
+              font: {
+                size: 14
+              },
+              stepSize: 10
+            },
+            grid: {
+              color: '#2f1a54'
+            }
+          }
+        }
+      }
+    };
+
+    let myBarChart = new Chart(ctx, config);
+
+    // Year filter logic
+    document.getElementById('yearFilter').addEventListener('change', function() {
+      const selectedYear = this.value;
+      myBarChart.data.datasets[0].data = yearData[selectedYear].data;
+
+      // If 2024 (Prediction), change the styling to indicate prediction
+      if (selectedYear === '2024') {
+        myBarChart.data.datasets[0].borderDash = [5, 5];
+        myBarChart.data.datasets[0].backgroundColor = 'rgba(150, 103, 216, 0.6)'; // Lighter background for prediction
+      } else {
+        myBarChart.data.datasets[0].borderDash = [];
+        myBarChart.data.datasets[0].backgroundColor = gradient; // Regular gradient for other years
+      }
+
+      myBarChart.update();
+    });
+
+    // Chart type filter logic
+    document.getElementById('chartTypeFilter').addEventListener('change', function() {
+      const selectedType = this.value;
+
+      // Destroy the previous chart and create a new one with the selected type
+      myBarChart.destroy();
+      config.type = selectedType; // Update chart type
+
+      if (selectedType === 'line') {
+        // Adjust for line chart specifics
+        config.data.datasets[0].fill = false;
+        config.data.datasets[0].borderColor = '#9567d8';
+        config.data.datasets[0].backgroundColor = '#9567d8'; // Line color
+        config.data.datasets[0].borderWidth = 2;
+      } else {
+        // Revert to bar chart settings
+        config.data.datasets[0].backgroundColor = gradient;
+        config.data.datasets[0].borderWidth = 0;
+        config.data.datasets[0].borderColor = ''; // No border color for bars
+      }
+
+      myBarChart = new Chart(ctx, config);
+    });
+  </script>
+</body>
+</html>
